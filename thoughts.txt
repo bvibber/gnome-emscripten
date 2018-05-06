@@ -1,0 +1,54 @@
+Fun idea: get simple GTK+ programs working in the browser with emscripten,
+compiled to WebAssembly. Should be able to use WebGL for rendering in theory.
+
+(Platform limitations: currently no threading, no blocking network i/o, etc)
+
+Quick start:
+* try to get glib (the base runtime library) building for wasm
+
+Problem: glib requires libffi, so let's get that too.
+
+Note should use --host=wasm32 on the configure lines, or it'll think it's
+building for x86_64. Old autoconfs didn't know asmjs or wasm32, but new ones do!
+Yay! \o/
+
+Problem: libffi is not ported to wasm32-unknown platform!
+
+Looking at what libffi does and how it could be ported.
+
+Part one: API for *calling* function pointers with run-time arbitrary arg layout.
+Part two: 'closure API' for *creating* function pointers with a state parameter
+
+
+
+For calling api:
+
+One possibility is to have wasm-side functions that switch on the number of
+parameters, doing a fixed-size indirect call. However the number of parameters
+for a function in wasm seems to be unbounded, so we can't cover all possible
+cases (confirmed can pass 16 params, for instance, and they all go as main args)
+
+    switch (num_args) {
+    case 0:
+        return ptr();
+    case 1:
+        return ptr(args[0]);
+    case 2:
+        return ptr(args[0], args[1]);
+    // ...
+    default:
+        return invoke_arbitrary_args(ptr, arg_count, args);
+    }
+
+where the arbitrary call is implemented as slow-path JS:
+
+    invoke_arbitrary_args: function(ptr, arg_count, args) {
+        // ...
+    }
+
+
+for now just doing the slow-path as an EM_ASM block :D
+
+Seems to work for basics.
+
+
