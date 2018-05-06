@@ -52,3 +52,12 @@ for now just doing the slow-path as an EM_ASM block :D
 Seems to work for basics.
 
 
+
+
+
+
+libffi test suite needs 'dejagnu' as test runner
+
+make check
+
+

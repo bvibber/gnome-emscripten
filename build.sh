@@ -7,6 +7,8 @@ PKG_CONFIG_PATH="$ROOT/"
 mkdir -p "$ROOT" || exit 1
 mkdir -p "$BUILD" || exit 1
 
+CHECK="$1"
+
 build_lib() {
     LIB="$1"
     CONFIG_FLAGS="$2"
@@ -43,8 +45,24 @@ build_lib() {
         fi
 
         make || exit 1
+
+        if [ "$CHECK" == "check" ]
+        then
+            # Run any tests
+            # Use emconfigure to force the generated scripts to be executable
+            EMCONFIGURE_JS=2 emconfigure make check || exit 1
+        fi
+
         make install || exit 1
     ) || exit 1
+}
+
+check_lib() {
+    LIB="$1"
+    CONFIG_FLAGS="$2"
+
+    LIB_SRC="$BASE/$1"
+    LIB_BUILD="$BUILD/$1"
 }
 
 build_bin() {
