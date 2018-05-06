@@ -1,8 +1,24 @@
 #include <stdio.h>
 #include <ffi.h>
 
+float call_a_float(void)
+{
+    printf("called call_a_float\n");
+    return 1.0;
+}
+
+float call_a_float_with_a_float(float param) {
+    return param + 1.0;
+}
+
+double call_double_double(double param) {
+    return param + 1.0;
+}
+
 int main()
 {
+    printf("THIS IS MAIN\n");
+
   ffi_cif cif;
   ffi_type *args[1];
   void *values[1];
@@ -14,9 +30,12 @@ int main()
   values[0] = &s;
   
   /* Initialize the cif */
+  printf("calling...\n");
   if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, 1, 
 		       &ffi_type_sint, args) == FFI_OK)
     {
+        printf("puts pointer is %p\n", puts);
+
       s = "Hello World!";
       ffi_call(&cif, puts, &rc, values);
       /* rc now holds the result of the call to puts */
@@ -26,7 +45,48 @@ int main()
          value of s */
       s = "This is cool!";
       ffi_call(&cif, puts, &rc, values);
+  } else {
+      printf("failed to make puts\n");
+  }
+
+    ffi_cif cif_float;
+    ffi_type *float_args[1];
+    void *float_vals[1];
+
+    if (ffi_prep_cif(&cif_float, FFI_DEFAULT_ABI, 0, &ffi_type_float, float_args) == FFI_OK) {
+        float ret_float;
+        float expected = 1.0;
+        ffi_call(&cif_float, call_a_float, &ret_float, float_vals);
+        printf("call_a_float pointer is %p\n", call_a_float);
+        printf("Got %f back from call_a_float, expected %f\n", ret_float, expected);
+        if (ret_float != expected) {
+            return 1;
+        }
+    } else {
+        printf("failed to make call_a_float\n");
     }
-  
+
+
+    ffi_cif cif_dbl;
+    ffi_type *dbl_args[1];
+    void *dbl_vals[1];
+
+    double dbl_in = 99.5;
+    dbl_args[0] = &ffi_type_double;
+    dbl_vals[0] = &dbl_in;
+
+    if (ffi_prep_cif(&cif_dbl, FFI_DEFAULT_ABI, 1, &ffi_type_double, dbl_args) == FFI_OK) {
+        double ret_dbl;
+        double expected = 100.5;
+        ffi_call(&cif_dbl, call_double_double, &ret_dbl, dbl_args);
+        printf("call_double_double pointer is %p\n", call_double_double);
+        printf("Got %lf back from call_double_double, expected %lf\n", ret_dbl, expected);
+        if (ret_dbl != expected) {
+            return 1;
+        }
+    } else {
+        printf("failed to make call_double_double\n");
+    }
+
   return 0;
 }

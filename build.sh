@@ -75,7 +75,7 @@ build_bin() {
         mkdir -p "$BIN_BUILD" || exit 1
         cd "$BIN_BUILD" || exit 1
 
-        if [ ! -e "$BIN.js" ] || [ "$BIN.js" -ot "$BIN.c" ]
+        if [ ! -e "$BIN.js" ] || [ "$BIN.js" -ot "$BIN_SRC/$BIN.c" ]
         then
             PKG_CONFIG_PATH="$ROOT/lib/pkgconfig" \
             emcc \
@@ -83,7 +83,8 @@ build_bin() {
               -L"$ROOT/lib" \
               $CFLAGS \
               $BIN_CFLAGS \
-              -o "$BIN.js" \
+              -s ASSERTIONS=2 \
+              -o "$BIN.html" \
               "$BIN_SRC/$BIN.c" \
               "$ROOT/lib/libffi.a" \
               || exit 1
