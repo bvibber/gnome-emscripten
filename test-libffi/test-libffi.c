@@ -54,6 +54,7 @@ int main()
       printf("failed to make puts\n");
   }
 
+  {
     ffi_cif cif_float;
     ffi_type *float_args[1];
     void *float_vals[1];
@@ -70,8 +71,32 @@ int main()
     } else {
         printf("failed to make call_a_float\n");
     }
+  }
 
+  {
+    ffi_cif cif_float;
+    ffi_type *float_args[1];
+    void *float_vals[1];
 
+    float float_in = 99.5;
+    float_args[0] = &ffi_type_float;
+    float_vals[0] = &float_in;
+
+    if (ffi_prep_cif(&cif_float, FFI_DEFAULT_ABI, 1, &ffi_type_float, float_args) == FFI_OK) {
+        float ret_float;
+        float expected = 100.5;
+        ffi_call(&cif_float, call_a_float_with_a_float, &ret_float, float_vals);
+        printf("call_a_float_with_a_float pointer is %p\n", call_a_float_with_a_float);
+        printf("Got %lf back from call_a_float_with_a_float, expected %lf\n", ret_float, expected);
+        if (ret_float != expected) {
+            return 1;
+        }
+    } else {
+        printf("failed to make call_a_float_with_a_float\n");
+    }
+  }
+
+  {
     ffi_cif cif_dbl;
     ffi_type *dbl_args[1];
     void *dbl_vals[1];
@@ -92,7 +117,7 @@ int main()
     } else {
         printf("failed to make call_double_double\n");
     }
-
+  }
 
 
     ffi_cif cif_with_i64;
