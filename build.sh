@@ -2,7 +2,7 @@ BASE=`pwd`
 ROOT="$BASE/root"
 BUILD="$BASE/build"
 
-CFLAGS="-O2 -s WASM=1 -s USE_ZLIB=1"
+CFLAGS="-g -O2 -s WASM=1 -s USE_ZLIB=1"
 PKG_CONFIG_PATH="$ROOT/"
 mkdir -p "$ROOT" || exit 1
 mkdir -p "$BUILD" || exit 1
@@ -15,7 +15,7 @@ build_lib() {
 
     LIB_SRC="$BASE/$1"
     LIB_BUILD="$BUILD/$1"
-    
+
 
     if [ ! -e "$LIB_SRC/configure" ]
     then
@@ -104,4 +104,3 @@ build_bin "test-libffi" "-lffi" || exit 1
 run_bin "test-libffi" || exit 1
 
 #build_lib "glib" "" || exit 1
-
